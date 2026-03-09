@@ -239,3 +239,13 @@ For English speakers, check out [SALVé-Techlanna](https://techlanna.com) for AI
 ## License
 
 MIT — use it, modify it, sell it. See [LICENSE](LICENSE) for details.
+
+---
+
+## Disclaimer
+
+To the best of our understanding, using this tool with the official Instagram Messaging API for your own account (personal or business) is permitted by Meta's platform policies and does not require App Review. However, using it to manage third-party accounts or offer it as a service to clients may require additional Meta approvals.
+
+This is not legal advice. If you intend to use this tool commercially or on behalf of clients, consult a qualified legal professional to ensure compliance with Meta's Platform Terms, Instagram's policies, and applicable laws.
+
+The authors and contributors of this project accept no liability for any account suspension, ban, legal claim, or other consequence arising from the use of this software. **Use at your own risk.**
