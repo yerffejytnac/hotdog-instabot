@@ -1,4 +1,5 @@
 import { loadEnv } from "./config/env.js";
+import { handlePrivacy } from "./pages/privacy.js";
 import { initDb } from "./services/db.js";
 import { loadKeywordRules } from "./services/keyword.service.js";
 import { startEmailReminder } from "./services/reminder.service.js";
@@ -29,6 +30,11 @@ const server = Bun.serve({
         uptime: process.uptime(),
         version: "1.0.0",
       });
+    }
+
+    // Privacy policy
+    if (url.pathname === "/privacy" && req.method === "GET") {
+      return handlePrivacy();
     }
 
     // Webhook routes

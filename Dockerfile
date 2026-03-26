@@ -19,6 +19,7 @@ RUN bun install --frozen-lockfile --production
 COPY --from=builder /app/dist ./dist
 COPY keywords.json ./
 COPY email-templates/ ./email-templates/
+COPY docs/ ./docs/
 
 ENV NODE_ENV=production
 
