@@ -1,66 +1,30 @@
 [
   {
-    "id": "freebie",
-    "keyword": "FREEBIE",
-    "aliases": ["FREE", "DOWNLOAD"],
+    "id": "hotdog",
+    "keyword": "🌭",
+    "aliases": [],
     "matchType": "contains",
     "priority": 1,
     "enabled": true,
     "cooldownMinutes": 60,
-    "askEmail": true,
+    "askEmail": false,
     "response": {
-      "type": "button",
-      "text": "Hey {{username}}! Glad you're interested in the free resource!",
-      "buttons": [
-        {
-          "type": "postback",
-          "title": "Send it to me",
-          "payload": "start_email:freebie"
-        }
-      ]
-    },
-    "followUp": {
-      "type": "button",
-      "text": "Here's the link to your free resource. I also sent it to your email:",
-      "buttons": [
-        {
-          "type": "web_url",
-          "title": "Get the resource",
-          "url": "https://your-site.com/freebie"
-        }
-      ]
+      "type": "text",
+      "text": "Hey {{username}}! 🌭📸 Thanks for reaching out!"
     }
   },
   {
-    "id": "course",
-    "keyword": "COURSE",
-    "aliases": ["CLASS", "LEARN"],
+    "id": "woof",
+    "keyword": "WOOF",
+    "aliases": [],
     "matchType": "contains",
     "priority": 2,
     "enabled": true,
     "cooldownMinutes": 60,
-    "askEmail": true,
+    "askEmail": false,
     "response": {
-      "type": "button",
-      "text": "Hey {{username}}! Great that you want to learn! I have something for you.",
-      "buttons": [
-        {
-          "type": "postback",
-          "title": "Show me the course",
-          "payload": "start_email:course"
-        }
-      ]
-    },
-    "followUp": {
-      "type": "button",
-      "text": "Here's the link to the course. I also sent it to your email:",
-      "buttons": [
-        {
-          "type": "web_url",
-          "title": "View the course",
-          "url": "https://your-site.com/course"
-        }
-      ]
+      "type": "text",
+      "text": "Hey {{username}}! 🐶 Woof woof right back at ya!"
     }
   }
 ]

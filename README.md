@@ -1,8 +1,8 @@
-# InstaBot
+# Hotdog InstaBot 🌭📸
 
-**Open-source ManyChat alternative. Self-hosted Instagram DM automation for ~$5/month.**
+**Open-source ManyChat alternative. Self-hosted Instagram DM automation for dog portrait photography.**
 
-Replace your $50/month ManyChat subscription with a self-hosted server that does keyword-triggered DMs, email collection, and resource delivery — all running on Railway (or any Node.js host).
+Replace your $50/month ManyChat subscription with a self-hosted server that does keyword-triggered DMs, email collection, and resource delivery — all running on Dokploy (or any Docker host).
 
 ---
 
@@ -17,12 +17,12 @@ Replace your $50/month ManyChat subscription with a self-hosted server that does
 - **Ice Breaker support** — Works with Instagram's native conversation starters
 - **Cooldowns & rate limits** — Per-keyword cooldowns + global rate limiting
 - **PostgreSQL** — Leads, DM logs, and email status tracked in a database
-- **One-click deploy** — Dockerfile + `railway.toml` included
+- **Docker Compose deploy** — `docker-compose.yml` included, ready for Dokploy
 
 ## How It Works
 
-```
-User comments "CLASE" on your post
+```/dev/null/flow.txt#L1-7
+User comments "BOOKING" on your post
         │
         ▼
 InstaBot matches keyword → sends DM with CTA button
@@ -31,80 +31,63 @@ InstaBot matches keyword → sends DM with CTA button
 User clicks button → "What's your email?"
         │
         ▼
-User sends email → Resource delivered via DM + email
+User sends email → Booking info delivered via DM + email
 ```
 
 ## Quick Start
 
 ### 1. Clone and install
 
-```bash
-git clone https://github.com/juancadile/instabot.git
-cd instabot
-npm install
+```/dev/null/bash.sh#L1-3
+git clone https://github.com/your-org/hotdog-instabot.git
+cd hotdog-instabot
+bun install
 ```
 
 ### 2. Configure environment
 
-```bash
+```/dev/null/bash.sh#L1-2
 cp .env.example .env
-# Edit .env with your Meta API credentials, database URL, etc.
+# Edit .env with your Meta API credentials, Postgres password, etc.
 ```
 
 ### 3. Set up your keywords
 
-Edit `keywords.json` to define your automation rules:
+Edit `keywords.json` to define your automation rules. Three rules are included out of the box:
 
-```json
-{
-  "id": "clase",
-  "keyword": "CLASE",
-  "aliases": ["REGISTRARME", "VIBE CODING"],
-  "matchType": "contains",
-  "priority": 1,
-  "enabled": true,
-  "cooldownMinutes": 60,
-  "askEmail": true,
-  "response": {
-    "type": "button",
-    "text": "Hey {{username}}! Glad you want to learn!",
-    "buttons": [
-      {
-        "type": "postback",
-        "title": "Give me the courses",
-        "payload": "start_email:clase"
-      }
-    ]
-  },
-  "followUp": {
-    "type": "button",
-    "text": "Here's the link to the courses:",
-    "buttons": [
-      {
-        "type": "web_url",
-        "title": "View courses",
-        "url": "https://your-site.com/courses"
-      }
-    ]
-  }
-}
+| Keyword | Aliases | Description |
+|---------|---------|-------------|
+| `BOOKING` | BOOK, APPOINTMENT, SCHEDULE, SESSION | Sends booking link + collects email |
+| `PRICING` | PRICE, COST, RATES, HOW MUCH, PACKAGES | Sends pricing guide + collects email |
+| `PORTFOLIO` | GALLERY, EXAMPLES, WORK, PHOTOS, SAMPLES | Links to portfolio (no email required) |
+
+### 4. Deploy to Dokploy
+
+This project ships with a `docker-compose.yml` ready for [Dokploy's Docker Compose deployment mode](https://docs.dokploy.com/docs/core/docker-compose).
+
+#### Option A: Deploy via Dokploy UI
+
+1. In the Dokploy dashboard, create a new **Compose** project
+2. Point it to your Git repository (or paste the `docker-compose.yml` contents)
+3. Add your environment variables in the Dokploy **Environment** tab (see table below)
+4. Set `POSTGRES_PASSWORD` to a strong, unique value
+5. Deploy — Dokploy builds the image, starts Postgres, and wires everything up
+6. Configure your domain (e.g., `instabot.hotdog.photo`) in Dokploy's proxy settings — it handles TLS automatically
+
+#### Option B: Deploy manually with Docker Compose
+
+```/dev/null/bash.sh#L1-5
+# On your server:
+cp .env.example .env
+# Edit .env with real values
+docker compose up -d --build
+docker compose logs -f app
 ```
-
-### 4. Deploy to Railway
-
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template)
-
-Or deploy manually:
-1. Push to GitHub
-2. Connect repo to Railway
-3. Add a PostgreSQL plugin
-4. Set environment variables
-5. Deploy
 
 ### 5. Configure Meta Webhook
 
 1. Go to [Meta Developer Console](https://developers.facebook.com)
-2. Set webhook URL to `https://your-app.up.railway.app/webhook`
+2. Set webhook URL to `https://instabot.hotdog.photo/webhook`
 3. Subscribe to: `comments`, `messages`, `messaging_postbacks`
 
 ## Configuration
@@ -117,41 +100,35 @@ Or deploy manually:
 | `META_VERIFY_TOKEN` | Yes | Token you choose for webhook verification |
 | `INSTAGRAM_PAGE_ACCESS_TOKEN` | Yes | Instagram page access token |
 | `INSTAGRAM_PAGE_ID` | Yes | Your Instagram page/account ID |
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `DATABASE_URL` | Yes | PostgreSQL connection string (set automatically by compose) |
+| `POSTGRES_PASSWORD` | Yes | Password for the Postgres container |
 | `ADMIN_API_KEY` | Yes | API key for admin endpoints |
 | `PORT` | No | Server port (default: 3000) |
 | `RESEND_API_KEY` | No | Resend API key (enables email features) |
-| `EMAIL_FROM` | No | Sender address (default: `InstaBot <noreply@example.com>`) |
-| `WELCOME_EMAIL_TEMPLATE` | No | Welcome email template filename (default: `bienvenido.html`) |
+| `EMAIL_FROM` | No | Sender address (default: `Hotdog Photo <hello@hotdog.photo>`) |
+| `WELCOME_EMAIL_TEMPLATE` | No | Welcome email template filename (default: `welcome-generic.html`) |
 
 ### Keyword Match Types
 
 | Type | Behavior | Example |
 |------|----------|---------|
-| `exact` | Full text must match | "CLASE" matches "CLASE" only |
-| `contains` | Keyword anywhere in text | "CLASE" matches "quiero la CLASE gratis" |
-| `word_boundary` | Whole word match | "AI" matches "tell me about AI" but not "WAIT" |
+| `exact` | Full text must match | "BOOKING" matches "BOOKING" only |
+| `contains` | Keyword anywhere in text | "BOOKING" matches "I want a BOOKING please" |
+| `word_boundary` | Whole word match | "BOOK" matches "I want to BOOK" but not "FACEBOOK" |
 
 All matching is case-insensitive.
 
 ### Email Templates
 
-Two welcome email templates are included in `email-templates/`:
+A welcome email template is included in `email-templates/`:
 
-- `bienvenido.html` — Golem Lab branded template (default)
-- `welcome-generic.html` — Clean generic template for your own branding
+- `welcome-generic.html` — Hotdog-branded welcome email (default)
 
-To use the generic template, set in your `.env`:
-
-```
-WELCOME_EMAIL_TEMPLATE=welcome-generic.html
-```
-
-Or create your own HTML template in `email-templates/` and point to it. The template uses `{{1.record.full_name}}` as the name placeholder.
+The template uses `{{1.record.full_name}}` as the name placeholder. To create your own, add an HTML file to `email-templates/` and set `WELCOME_EMAIL_TEMPLATE` in your `.env`.
 
 ## Architecture
 
-```
+```/dev/null/tree.txt#L1-18
 src/
 ├── index.ts                 # Entry point
 ├── config/env.ts            # Zod-validated environment
@@ -178,62 +155,38 @@ src/
     └── templates.ts         # {{username}} template rendering
 ```
 
+## Docker Compose Services
+
+| Service | Image | Description |
+|---------|-------|-------------|
+| `app` | Built from `Dockerfile` | The InstaBot application |
+| `db` | `postgres:16-alpine` | PostgreSQL database with persistent volume |
+
+The app waits for the database health check to pass before starting. Data is persisted in a named Docker volume (`pgdata`). Containers are named `instabot` and `instabot-db`.
+
 ## Running Locally
 
-```bash
+```/dev/null/bash.sh#L1-11
 # Development (auto-reload)
-npm run dev
+bun run dev
 
 # Build
-npm run build
+bun run build
 
 # Production
-npm start
+bun start
 
 # Tests
-npm test
+bun test
 ```
 
 For local webhook testing, use [ngrok](https://ngrok.com) to expose your local server:
 
-```bash
+```/dev/null/bash.sh#L1-2
 ngrok http 3000
 # Then set the ngrok URL as your webhook URL in Meta Developer Console
 ```
 
-## Cost Comparison
-
-| | ManyChat | InstaBot |
-|---|---------|----------|
-| Monthly cost | $15-50+ | ~$5 (Railway) |
-| DM limits | Plan-dependent | Unlimited* |
-| Data ownership | ManyChat's servers | Your database |
-| Customization | Limited | Full source code |
-
-*Subject to Instagram API rate limits.
-
----
-
-## Need Help?
-
-This project is maintained by [Juan Cadile](https://instagram.com/juancadile) / [Golem Lab](https://golemlab.ai) / [SALVé-Techlanna](https://techlanna.com).
-
-**We offer:**
-- Custom setup & deployment for your brand
-- Feature development (LLM-powered replies, analytics dashboards, multi-account)
-- Team training, development, and consulting on AI and business automation.
-- Integration with your existing tools (CRM, email marketing, etc.)
-
-**Reach out:** hello@techlanna.com
-
-### Learn to Build with AI
-
-For Spanish Speakers, check out the [Golem Lab Bootcamps](https://golemlab.ai/bootcamps) — intensive 10-week programs to build real products with AI:
-
-- **Vibe Coding Bootcamp** — Go from idea to MVP without writing code
-- **AI Engineer Bootcamp** — Go from developer to AI engineer
-
-For English speakers, check out [SALVé-Techlanna](https://techlanna.com) for AI and automation education, consulting, and development.
 ---
 
 ## License

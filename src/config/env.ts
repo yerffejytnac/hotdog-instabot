@@ -12,8 +12,8 @@ const envSchema = z.object({
   ADMIN_API_KEY: z.string().min(1),
   DATABASE_URL: z.string().min(1),
   RESEND_API_KEY: z.string().min(1).optional(),
-  EMAIL_FROM: z.string().default('InstaBot <noreply@example.com>'),
-  WELCOME_EMAIL_TEMPLATE: z.string().default('bienvenido.html'),
+  EMAIL_FROM: z.string().default('Hotdog Photo <hello@hotdog.photo>'),
+  WELCOME_EMAIL_TEMPLATE: z.string().default('welcome-generic.html'),
 });
 
 export type Env = z.infer<typeof envSchema>;
