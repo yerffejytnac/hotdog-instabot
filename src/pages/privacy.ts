@@ -23,77 +23,26 @@ function renderPrivacyPage(): string {
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #0a0a0a;
-      color: #d1d5db;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.7;
       padding: 2rem 1rem;
     }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    h1 {
-      font-size: 2rem;
-      color: #ffffff;
-      margin-bottom: 0.25rem;
-    }
-    h2 {
-      font-size: 1.35rem;
-      color: #ffffff;
-      margin-top: 2.5rem;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 1px solid #333;
-    }
-    h3 {
-      font-size: 1.1rem;
-      color: #e5e7eb;
-      margin-top: 1.75rem;
-      margin-bottom: 0.5rem;
-    }
+    .container { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.35rem; margin-top: 2.5rem; margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid #ddd; }
+    h3 { font-size: 1.1rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
     p { margin-bottom: 1rem; }
-    a { color: #E85D26; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    ul, ol {
-      margin-bottom: 1rem;
-      padding-left: 1.5rem;
-    }
+    a { text-decoration: underline; }
+    ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
     li { margin-bottom: 0.35rem; }
-    strong { color: #ffffff; }
-    em { color: #9ca3af; }
-    hr {
-      border: none;
-      border-top: 1px solid #333;
-      margin: 2rem 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.875rem;
-    }
-    th, td {
-      border: 1px solid #333;
-      padding: 0.5rem 0.75rem;
-      text-align: left;
-    }
-    th {
-      background: #1a1a1a;
-      color: #ffffff;
-      font-weight: 600;
-    }
-    td { color: #d1d5db; }
-    .brand {
-      display: inline-block;
-      margin-bottom: 2rem;
-      font-size: 1.5rem;
-    }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+    th { font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="container">
-    <span class="brand">🌭📸</span>
     ${content}
   </div>
 </body>
