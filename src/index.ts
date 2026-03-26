@@ -49,7 +49,7 @@ const server = Bun.serve({
 
 logger.info(
   { port: server.port, env: env.NODE_ENV },
-  "Hotdog InstaBot server started",
+  "hotdog-bot server started",
 );
 
 export { server };

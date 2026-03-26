@@ -1,6 +1,6 @@
 # Configuration
 
-Hotdog InstaBot is configured entirely via environment variables. All variables are validated at startup using [Zod](https://zod.dev/) — the app will refuse to start if required values are missing or malformed.
+hotdog-bot is configured entirely via environment variables. All variables are validated at startup using [Zod](https://zod.dev/) — the app will refuse to start if required values are missing or malformed.
 
 Copy the example file to get started:
 

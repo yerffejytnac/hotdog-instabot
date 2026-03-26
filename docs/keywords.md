@@ -1,6 +1,6 @@
 # Configuring Keywords
 
-Keywords are the automation rules that drive Hotdog InstaBot. When a user sends a DM (or comments on a post) containing a matching keyword, the bot responds automatically.
+Keywords are the automation rules that drive hotdog-bot. When a user sends a DM (or comments on a post) containing a matching keyword, the bot responds automatically.
 
 Rules are defined in `keywords.json` at the project root. The file is loaded once at startup — restart the app (or redeploy) after editing.
 

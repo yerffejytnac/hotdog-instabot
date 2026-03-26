@@ -1,5 +1,5 @@
 {
-  "name": "hotdog-instabot",
+  "name": "hotdog-bot",
   "version": "1.0.0",
   "description": "Open-source ManyChat alternative — self-hosted Instagram DM automation",
   "type": "module",

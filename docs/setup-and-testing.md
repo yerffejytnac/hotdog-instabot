@@ -1,6 +1,6 @@
 # Setup & Testing
 
-This guide walks through deploying Hotdog InstaBot and verifying it works end-to-end.
+This guide walks through deploying hotdog-bot and verifying it works end-to-end.
 
 ---
 
@@ -48,8 +48,8 @@ This guide walks through deploying Hotdog InstaBot and verifying it works end-to
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/hotdog-instabot.git
-cd hotdog-instabot
+git clone https://github.com/your-org/hotdog-bot.git
+cd hotdog-bot
 
 # Configure environment
 cp .env.example .env
@@ -71,7 +71,7 @@ You should see:
 info: Loaded keyword rules  {"count": 2}
 info: Database initialized
 info: Email reminder service started (checks every 60s)
-info: Hotdog InstaBot server started  {"port": 3000}
+info: hotdog-bot server started  {"port": 3000}
 ```
 
 ### Verify the health endpoint

@@ -1,4 +1,4 @@
-# Hotdog InstaBot 🌭📸
+# hotdog-bot 🌭📸
 
 **Open-source ManyChat alternative. Self-hosted Instagram DM automation for dog portrait photography.**
 
@@ -25,7 +25,7 @@ Replace your $50/month ManyChat subscription with a self-hosted server that does
 User comments "BOOKING" on your post
         │
         ▼
-InstaBot matches keyword → sends DM with CTA button
+hotdog-bot matches keyword → sends DM with CTA button
         │
         ▼
 User clicks button → "What's your email?"
@@ -39,8 +39,8 @@ User sends email → Booking info delivered via DM + email
 ### 1. Clone and install
 
 ```/dev/null/bash.sh#L1-3
-git clone https://github.com/your-org/hotdog-instabot.git
-cd hotdog-instabot
+git clone https://github.com/your-org/hotdog-bot.git
+cd hotdog-bot
 bun install
 ```
 
@@ -162,7 +162,7 @@ src/
 
 | Service | Image | Description |
 |---------|-------|-------------|
-| `app` | Built from `Dockerfile` | The InstaBot application |
+| `app` | Built from `Dockerfile` | The hotdog-bot application |
 | `db` | `postgres:16-alpine` | PostgreSQL database with persistent volume |
 
 Data is persisted in a named Docker volume (`pgdata`). The app starts after the `db` service is up.
