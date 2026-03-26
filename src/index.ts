@@ -1,11 +1,9 @@
-import express from 'express';
-import type { Request, Response } from 'express';
 import { loadEnv } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { loadKeywordRules } from './services/keyword.service.js';
 import { initDb } from './services/db.js';
 import { startEmailReminder } from './services/reminder.service.js';
-import { webhookRouter } from './webhooks/router.js';
+import { handleWebhookGet, handleWebhookPost } from './webhooks/router.js';
 
 // Load and validate env vars
 const env = loadEnv();
@@ -13,40 +11,36 @@ const env = loadEnv();
 // Load keyword rules
 loadKeywordRules();
 
-const app = express();
+// Initialize database, then start server
+await initDb();
+startEmailReminder();
 
-// Parse JSON body and preserve raw body for signature verification
-app.use(
-  express.json({
-    verify: (req: Request, _res: Response, buf: Buffer) => {
-      (req as Request & { rawBody?: Buffer }).rawBody = buf;
-    },
-  }),
-);
+const server = Bun.serve({
+  port: env.PORT,
+  hostname: '0.0.0.0',
 
-// Health endpoint
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({
-    status: 'ok',
-    uptime: process.uptime(),
-    version: process.env.npm_package_version ?? '1.0.0',
-  });
+  async fetch(req: Request) {
+    const url = new URL(req.url);
+
+    // Health endpoint
+    if (url.pathname === '/health' && req.method === 'GET') {
+      return Response.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        version: '1.0.0',
+      });
+    }
+
+    // Webhook routes
+    if (url.pathname === '/webhook') {
+      if (req.method === 'GET') return handleWebhookGet(req, url);
+      if (req.method === 'POST') return handleWebhookPost(req);
+    }
+
+    return Response.json({ error: 'Not found' }, { status: 404 });
+  },
 });
 
-// Webhook routes
-app.use('/webhook', webhookRouter);
+logger.info({ port: server.port, env: env.NODE_ENV }, 'Hotdog InstaBot server started');
 
-// Initialize database and start server
-initDb()
-  .then(() => {
-    startEmailReminder();
-    app.listen(env.PORT, '0.0.0.0', () => {
-      logger.info({ port: env.PORT, env: env.NODE_ENV }, 'GolemBot server started');
-    });
-  })
-  .catch((err) => {
-    logger.fatal({ err }, 'Failed to initialize database');
-    process.exit(1);
-  });
-
-export { app };
+export { server };

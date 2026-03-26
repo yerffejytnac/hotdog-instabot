@@ -1,5 +1,3 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
 import { getEnv } from '../config/env.js';
 import { logger } from '../utils/logger.js';
 import { verifySignature } from './verify.js';
@@ -10,32 +8,32 @@ import { handlePostback } from '../handlers/postback.handler.js';
 import { handleMention } from '../handlers/mention.handler.js';
 import type { MetaWebhookPayload } from '../types/meta.types.js';
 
-export const webhookRouter = Router();
-
 // GET /webhook — Meta verification challenge
-webhookRouter.get('/', (req: Request, res: Response) => {
-  const mode = req.query['hub.mode'] as string;
-  const token = req.query['hub.verify_token'] as string;
-  const challenge = req.query['hub.challenge'] as string;
+export function handleWebhookGet(_req: Request, url: URL): Response {
+  const mode = url.searchParams.get('hub.mode');
+  const token = url.searchParams.get('hub.verify_token');
+  const challenge = url.searchParams.get('hub.challenge');
 
   if (mode === 'subscribe' && token === getEnv().META_VERIFY_TOKEN) {
     logger.info('Webhook verification successful');
-    res.status(200).send(challenge);
-    return;
+    return new Response(challenge, { status: 200 });
   }
 
   logger.warn({ mode, token }, 'Webhook verification failed');
-  res.status(403).send('Forbidden');
-});
+  return new Response('Forbidden', { status: 403 });
+}
 
 // POST /webhook — Receive events
-webhookRouter.post('/', verifySignature, (req: Request, res: Response) => {
-  // Respond 200 immediately to stay within Meta's 5-second window
-  res.status(200).send('EVENT_RECEIVED');
+export async function handleWebhookPost(req: Request): Promise<Response> {
+  const rawBody = await req.text();
 
-  const payload = req.body as MetaWebhookPayload;
+  // Verify signature
+  const signatureError = verifySignature(req, rawBody);
+  if (signatureError) return signatureError;
 
-  // Process events asynchronously
+  // Respond 200 immediately — process events async
+  const payload: MetaWebhookPayload = JSON.parse(rawBody);
+
   setImmediate(() => {
     try {
       const events = parseWebhookPayload(payload);
@@ -69,4 +67,6 @@ webhookRouter.post('/', verifySignature, (req: Request, res: Response) => {
       logger.error({ err }, 'Error parsing webhook payload');
     }
   });
-});
+
+  return new Response('EVENT_RECEIVED', { status: 200 });
+}
