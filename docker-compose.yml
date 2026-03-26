@@ -11,9 +11,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-hotdog}@db:5432/hotdog
     depends_on:
-      db:
-        condition: service_healthy
-
+      - db
 
   db:
     image: postgres:16-alpine
@@ -24,12 +22,6 @@ services:
       POSTGRES_DB: hotdog
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d hotdog"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
 volumes:
   pgdata:
