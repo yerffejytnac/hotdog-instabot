@@ -40,7 +40,9 @@ This guide walks through deploying Hotdog InstaBot and verifying it works end-to
 4. In the **Environment** tab, add all required variables (see [Configuration](./configuration.md)).
 5. Set a strong `POSTGRES_PASSWORD` (the example default is `hotdog` — change it in production).
 6. Hit **Deploy**.
-7. In Dokploy's **Domains** settings, assign your domain (e.g., `instabot.hotdog.photo`). Dokploy handles TLS automatically.
+7. Enable **Isolated Deployments** under the Advanced tab.
+8. In Dokploy's **Domains** tab, add your domain (e.g., `instabot.hotdog.photo`) pointing to service `app` on port `3000`. Dokploy handles TLS automatically.
+9. **Redeploy** after adding the domain — compose services require a redeploy for domain changes to take effect.
 
 ### Option B: Manual Docker Compose
 
@@ -68,8 +70,8 @@ You should see:
 ```
 info: Loaded keyword rules  {"count": 2}
 info: Database initialized
-info: Email reminder scheduler started
-info: Server listening on 0.0.0.0:3000
+info: Email reminder service started (checks every 60s)
+info: Hotdog InstaBot server started  {"port": 3000}
 ```
 
 ### Verify the health endpoint
@@ -95,7 +97,7 @@ cp .env.example .env
 bun run dev
 ```
 
-The dev server uses `tsx watch` and restarts automatically when you edit files in `src/`.
+The dev server uses Bun's built-in `--watch` mode and restarts automatically when you edit files in `src/`.
 
 ### Expose local server for webhooks
 

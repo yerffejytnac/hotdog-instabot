@@ -53,13 +53,12 @@ cp .env.example .env
 
 ### 3. Set up your keywords
 
-Edit `keywords.json` to define your automation rules. Three rules are included out of the box:
+Edit `keywords.json` to define your automation rules. Two rules are included out of the box:
 
-| Keyword | Aliases | Description |
+| Keyword | Trigger | Description |
 |---------|---------|-------------|
-| `BOOKING` | BOOK, APPOINTMENT, SCHEDULE, SESSION | Sends booking link + collects email |
-| `PRICING` | PRICE, COST, RATES, HOW MUCH, PACKAGES | Sends pricing guide + collects email |
-| `PORTFOLIO` | GALLERY, EXAMPLES, WORK, PHOTOS, SAMPLES | Links to portfolio (no email required) |
+| `hotdog` | 🌭 emoji | Plain text reply |
+| `woof` | WOOF | Plain text reply |
 
 ### 4. Deploy to Dokploy
 
@@ -72,7 +71,9 @@ This project ships with a `docker-compose.yml` ready for [Dokploy's Docker Compo
 3. Add your environment variables in the Dokploy **Environment** tab (see table below)
 4. Set `POSTGRES_PASSWORD` to a strong, unique value
 5. Deploy — Dokploy builds the image, starts Postgres, and wires everything up
-6. Configure your domain (e.g., `instabot.hotdog.photo`) in Dokploy's proxy settings — it handles TLS automatically
+6. Enable **Isolated Deployments** under the Advanced tab
+7. In the **Domains** tab, add your domain (e.g., `instabot.hotdog.photo`) pointing to service `app` on port `3000`
+8. **Redeploy** after adding the domain — compose services require a redeploy for domain changes to take effect
 
 #### Option B: Deploy manually with Docker Compose
 
@@ -130,10 +131,12 @@ The template uses `{{1.record.full_name}}` as the name placeholder. To create yo
 
 ```/dev/null/tree.txt#L1-18
 src/
-├── index.ts                 # Entry point
+├── index.ts                 # Entry point (Bun.serve)
 ├── config/env.ts            # Zod-validated environment
+├── pages/
+│   └── privacy.ts           # GET /privacy — renders privacy-policy.md
 ├── webhooks/
-│   ├── router.ts            # GET/POST /webhook
+│   ├── router.ts            # GET/POST /webhook handlers
 │   ├── verify.ts            # HMAC signature verification
 │   └── parser.ts            # Parse Meta webhook events
 ├── handlers/
@@ -162,7 +165,7 @@ src/
 | `app` | Built from `Dockerfile` | The InstaBot application |
 | `db` | `postgres:16-alpine` | PostgreSQL database with persistent volume |
 
-The app waits for the database health check to pass before starting. Data is persisted in a named Docker volume (`pgdata`). Containers are named `instabot` and `instabot-db`.
+Data is persisted in a named Docker volume (`pgdata`). The app starts after the `db` service is up.
 
 ## Running Locally
 

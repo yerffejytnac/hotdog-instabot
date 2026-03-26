@@ -20,7 +20,7 @@ cp .env.example .env
 | `META_VERIFY_TOKEN` | A string you choose. Meta sends it during webhook setup to confirm you own the endpoint. Can be any value — just make sure it matches what you enter in the Meta Developer Console. |
 | `INSTAGRAM_PAGE_ACCESS_TOKEN` | A long-lived page access token for the Instagram account. Generated via the Meta Graph API Explorer or your app's token tool. |
 | `INSTAGRAM_PAGE_ID` | The numeric ID of your Instagram Professional account (not the username). |
-| `ADMIN_API_KEY` | A secret key you choose. Protects admin API endpoints (e.g., lead export). |
+| `ADMIN_API_KEY` | A secret key you choose. Required by the env schema but not currently used by any route — reserved for future admin endpoints. |
 | `DATABASE_URL` | PostgreSQL connection string. When using the included `docker-compose.yml`, this is set automatically by the compose environment block (uses the `db` service as the host). Format: `postgresql://user:password@host:5432/dbname` |
 | `POSTGRES_PASSWORD` | Password for the Postgres container. Referenced by both the `db` service and the `DATABASE_URL` in `docker-compose.yml`. |
 
@@ -28,7 +28,7 @@ cp .env.example .env
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `3000` | Port the Express server listens on. |
+| `PORT` | `3000` | Port the Bun server listens on. |
 | `NODE_ENV` | `development` | Set to `production` in deployment. Affects logging format and error detail. |
 | `LOG_LEVEL` | `info` | Pino log level. One of: `fatal`, `error`, `warn`, `info`, `debug`, `trace`. |
 | `RESEND_API_KEY` | _(disabled)_ | API key from [Resend](https://resend.com). When omitted, all email features (welcome email, resource delivery, reminders) are disabled. |
