@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: instabot
     restart: unless-stopped
     expose:
       - "3000"
@@ -26,7 +25,6 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: instabot-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
