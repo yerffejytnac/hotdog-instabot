@@ -1,8 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { Resend } from 'resend';
-import { getEnv } from '../config/env.js';
-import { logger } from '../utils/logger.js';
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+import { Resend } from "resend";
+import { getEnv } from "../config/env.js";
+import { logger } from "../utils/logger.js";
 
 let resend: Resend | undefined;
 let templateHtml: string | undefined;
@@ -10,7 +11,7 @@ let templateHtml: string | undefined;
 function getResend(): Resend {
   if (!resend) {
     const env = getEnv();
-    if (!env.RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+    if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY not configured");
     resend = new Resend(env.RESEND_API_KEY);
   }
   return resend;
@@ -18,30 +19,33 @@ function getResend(): Resend {
 
 function getTemplate(): string {
   if (!templateHtml) {
-    const filename = getEnv().WELCOME_EMAIL_TEMPLATE || 'bienvenido.html';
-    const templatePath = resolve(process.cwd(), 'email-templates', filename);
-    templateHtml = readFileSync(templatePath, 'utf-8');
+    const filename = getEnv().WELCOME_EMAIL_TEMPLATE || "bienvenido.html";
+    const templatePath = resolve(process.cwd(), "email-templates", filename);
+    templateHtml = readFileSync(templatePath, "utf-8");
   }
   return templateHtml;
 }
 
-export async function sendWelcomeEmail(to: string, fullName: string): Promise<void> {
+export async function sendWelcomeEmail(
+  to: string,
+  fullName: string,
+): Promise<void> {
   const client = getResend();
-  const html = getTemplate().replace('{{1.record.full_name}}', fullName);
+  const html = getTemplate().replace("{{1.record.full_name}}", fullName);
 
   const { error } = await client.emails.send({
     from: getEnv().EMAIL_FROM,
     to,
-    subject: '¡Bienvenido a Golem Lab!',
+    subject: "¡Bienvenido a Golem Lab!",
     html,
   });
 
   if (error) {
-    logger.error({ error, to }, 'Failed to send welcome email');
+    logger.error({ error, to }, "Failed to send welcome email");
     throw new Error(`Resend error: ${error.message}`);
   }
 
-  logger.info({ to, fullName }, 'Welcome email sent');
+  logger.info({ to, fullName }, "Welcome email sent");
 }
 
 export async function sendResourceEmail(
@@ -83,9 +87,9 @@ export async function sendResourceEmail(
   });
 
   if (error) {
-    logger.error({ error, to }, 'Failed to send resource email');
+    logger.error({ error, to }, "Failed to send resource email");
     throw new Error(`Resend error: ${error.message}`);
   }
 
-  logger.info({ to, fullName, resourceTitle }, 'Resource email sent');
+  logger.info({ to, fullName, resourceTitle }, "Resource email sent");
 }

@@ -3,7 +3,11 @@ const hourlyCounters = new Map<string, { count: number; resetAt: number }>();
 
 const MAX_DMS_PER_HOUR = 5;
 
-export function isOnCooldown(userId: string, keywordId: string, cooldownMinutes: number): boolean {
+export function isOnCooldown(
+  userId: string,
+  keywordId: string,
+  cooldownMinutes: number,
+): boolean {
   const key = `${userId}:${keywordId}`;
   const lastTrigger = cooldowns.get(key);
   if (!lastTrigger) return false;

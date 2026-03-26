@@ -1,10 +1,13 @@
-import { getEnv } from '../config/env.js';
-import type { InstagramSendMessageResponse, InstagramUserProfile } from '../types/instagram.types.js';
-import type { MessageButton } from '../types/keyword.types.js';
-import { logger } from '../utils/logger.js';
-import { withRetry } from '../utils/retry.js';
+import { getEnv } from "../config/env.js";
+import type {
+  InstagramSendMessageResponse,
+  InstagramUserProfile,
+} from "../types/instagram.types.js";
+import type { MessageButton } from "../types/keyword.types.js";
+import { logger } from "../utils/logger.js";
+import { withRetry } from "../utils/retry.js";
 
-const API_BASE = 'https://graph.instagram.com/v21.0';
+const API_BASE = "https://graph.instagram.com/v21.0";
 
 export async function sendTextDM(
   recipientId: string,
@@ -12,13 +15,13 @@ export async function sendTextDM(
 ): Promise<InstagramSendMessageResponse> {
   const env = getEnv();
 
-  logger.debug({ recipientId }, 'Sending text DM');
+  logger.debug({ recipientId }, "Sending text DM");
 
   return withRetry<InstagramSendMessageResponse>(() =>
     fetch(`${API_BASE}/me/messages`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${env.INSTAGRAM_PAGE_ACCESS_TOKEN}`,
       },
       body: JSON.stringify({
@@ -36,22 +39,25 @@ export async function sendButtonDM(
 ): Promise<InstagramSendMessageResponse> {
   const env = getEnv();
 
-  logger.debug({ recipientId, buttonCount: buttons.length }, 'Sending button DM');
+  logger.debug(
+    { recipientId, buttonCount: buttons.length },
+    "Sending button DM",
+  );
 
   return withRetry<InstagramSendMessageResponse>(() =>
     fetch(`${API_BASE}/me/messages`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${env.INSTAGRAM_PAGE_ACCESS_TOKEN}`,
       },
       body: JSON.stringify({
         recipient: { id: recipientId },
         message: {
           attachment: {
-            type: 'template',
+            type: "template",
             payload: {
-              template_type: 'generic',
+              template_type: "generic",
               elements: [
                 {
                   title: text,
@@ -71,7 +77,9 @@ export async function sendButtonDM(
   );
 }
 
-export async function getMediaOwner(mediaId: string): Promise<{ id: string; username: string } | null> {
+export async function getMediaOwner(
+  mediaId: string,
+): Promise<{ id: string; username: string } | null> {
   const env = getEnv();
 
   try {
@@ -84,17 +92,24 @@ export async function getMediaOwner(mediaId: string): Promise<{ id: string; user
       },
     );
     if (!response.ok) {
-      logger.warn({ mediaId, status: response.status }, 'Failed to get media owner');
+      logger.warn(
+        { mediaId, status: response.status },
+        "Failed to get media owner",
+      );
       return null;
     }
-    const data = (await response.json()) as { owner?: { id: string; username: string } };
+    const data = (await response.json()) as {
+      owner?: { id: string; username: string };
+    };
     return data.owner ?? null;
   } catch {
     return null;
   }
 }
 
-export async function getUserProfile(userId: string): Promise<InstagramUserProfile> {
+export async function getUserProfile(
+  userId: string,
+): Promise<InstagramUserProfile> {
   const env = getEnv();
 
   return withRetry<InstagramUserProfile>(() =>

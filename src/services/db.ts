@@ -1,6 +1,6 @@
-import postgres from 'postgres';
-import { getEnv } from '../config/env.js';
-import { logger } from '../utils/logger.js';
+import postgres from "postgres";
+import { getEnv } from "../config/env.js";
+import { logger } from "../utils/logger.js";
 
 let sql: ReturnType<typeof postgres> | undefined;
 
@@ -55,7 +55,7 @@ export async function initDb(): Promise<void> {
     CREATE INDEX IF NOT EXISTS dm_log_ig_user_id_idx ON dm_log (ig_user_id)
   `;
 
-  logger.info('Database initialized');
+  logger.info("Database initialized");
 }
 
 export async function closeDb(): Promise<void> {

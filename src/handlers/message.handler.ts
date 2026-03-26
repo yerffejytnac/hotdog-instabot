@@ -1,13 +1,29 @@
-import type { MetaMessagingEvent } from '../types/meta.types.js';
-import { logger } from '../utils/logger.js';
-import { getLeadByIgUserId, setLeadEmail, setLeadStatus, upsertLead } from '../services/lead.service.js';
-import { logDM } from '../services/dmlog.service.js';
-import { sendTextDM, sendButtonDM, getUserProfile } from '../services/instagram.service.js';
-import { sendWelcomeEmail, sendResourceEmail } from '../services/email.service.js';
-import { getKeywordRules, matchKeyword } from '../services/keyword.service.js';
-import { isOnCooldown, isRateLimited, recordTrigger } from '../services/cooldown.service.js';
-import { renderTemplate } from '../utils/templates.js';
-import { getEnv } from '../config/env.js';
+import { getEnv } from "../config/env.js";
+import {
+  isOnCooldown,
+  isRateLimited,
+  recordTrigger,
+} from "../services/cooldown.service.js";
+import { logDM } from "../services/dmlog.service.js";
+import {
+  sendResourceEmail,
+  sendWelcomeEmail,
+} from "../services/email.service.js";
+import {
+  getUserProfile,
+  sendButtonDM,
+  sendTextDM,
+} from "../services/instagram.service.js";
+import { getKeywordRules, matchKeyword } from "../services/keyword.service.js";
+import {
+  getLeadByIgUserId,
+  setLeadEmail,
+  setLeadStatus,
+  upsertLead,
+} from "../services/lead.service.js";
+import type { MetaMessagingEvent } from "../types/meta.types.js";
+import { logger } from "../utils/logger.js";
+import { renderTemplate } from "../utils/templates.js";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -16,15 +32,15 @@ export async function handleMessage(event: MetaMessagingEvent): Promise<void> {
   const text = event.message?.text?.trim();
   const mid = event.message?.mid;
 
-  logger.info({ senderId, text, mid }, 'Received DM');
+  logger.info({ senderId, text, mid }, "Received DM");
 
   // Log inbound message
   logDM({
     igUserId: senderId,
-    direction: 'inbound',
-    messageType: 'text',
+    direction: "inbound",
+    messageType: "text",
     content: text,
-  }).catch((err) => logger.error({ err }, 'Failed to log inbound DM'));
+  }).catch((err) => logger.error({ err }, "Failed to log inbound DM"));
 
   if (!text) return;
 
@@ -32,7 +48,12 @@ export async function handleMessage(event: MetaMessagingEvent): Promise<void> {
     const lead = await getLeadByIgUserId(senderId);
 
     // 1. Email collection flow — but if text matches a keyword, handle as keyword instead
-    if (lead && (lead.status === 'email_pending' || lead.status === 'email_confirming' || lead.status === 'email_reminded')) {
+    if (
+      lead &&
+      (lead.status === "email_pending" ||
+        lead.status === "email_confirming" ||
+        lead.status === "email_reminded")
+    ) {
       const keywordMatch = matchKeyword(text);
       if (keywordMatch) {
         await handleKeywordDM(senderId, keywordMatch, lead);
@@ -50,9 +71,9 @@ export async function handleMessage(event: MetaMessagingEvent): Promise<void> {
     }
 
     // 3. No keyword match — do nothing. This is a normal conversation with the human.
-    logger.debug({ senderId, text }, 'No keyword match, ignoring message');
+    logger.debug({ senderId, text }, "No keyword match, ignoring message");
   } catch (err) {
-    logger.error({ err, senderId }, 'Error handling message');
+    logger.error({ err, senderId }, "Error handling message");
   }
 }
 
@@ -69,7 +90,7 @@ async function handleEmailCollection(
     const rule = getKeywordRules().find((r) => r.id === lead.keyword_id);
 
     if (rule?.followUp) {
-      if (rule.followUp.type === 'button' && rule.followUp.buttons?.length) {
+      if (rule.followUp.type === "button" && rule.followUp.buttons?.length) {
         await sendButtonDM(senderId, rule.followUp.text, rule.followUp.buttons);
       } else {
         await sendTextDM(senderId, rule.followUp.text);
@@ -77,36 +98,55 @@ async function handleEmailCollection(
 
       logDM({
         igUserId: senderId,
-        direction: 'outbound',
-        messageType: 'followup',
+        direction: "outbound",
+        messageType: "followup",
         keywordId: rule.id,
         content: rule.followUp.text,
       }).catch(() => {});
     } else {
-      await sendTextDM(senderId, 'Genial, ya quedo guardado tu email! Te vamos a enviar info pronto.');
+      await sendTextDM(
+        senderId,
+        "Genial, ya quedo guardado tu email! Te vamos a enviar info pronto.",
+      );
     }
 
     // Send emails if Resend is configured
     const env = getEnv();
     if (env.RESEND_API_KEY) {
-      const username = lead.ig_username ?? 'amigo';
+      const username = lead.ig_username ?? "amigo";
       try {
         if (rule?.followUp?.buttons?.[0]?.url) {
-          await sendResourceEmail(text, username, rule.followUp.buttons[0].title, rule.followUp.buttons[0].url);
+          await sendResourceEmail(
+            text,
+            username,
+            rule.followUp.buttons[0].title,
+            rule.followUp.buttons[0].url,
+          );
         } else if (rule?.followUp?.text) {
-          await sendResourceEmail(text, username, 'Tu recurso', rule.followUp.text);
+          await sendResourceEmail(
+            text,
+            username,
+            "Tu recurso",
+            rule.followUp.text,
+          );
         }
         await sendWelcomeEmail(text, username);
-        await setLeadStatus(senderId, 'email_sent');
+        await setLeadStatus(senderId, "email_sent");
       } catch (err) {
-        logger.error({ err, email: text }, 'Failed to send emails');
+        logger.error({ err, email: text }, "Failed to send emails");
       }
     }
 
-    logger.info({ senderId, email: text, keywordId: lead.keyword_id }, 'Email collected, followUp sent');
+    logger.info(
+      { senderId, email: text, keywordId: lead.keyword_id },
+      "Email collected, followUp sent",
+    );
   } else {
     // Not a valid email — ask again
-    await sendTextDM(senderId, 'Hmm, no parece un email valido. Podes enviarmelo de nuevo?');
+    await sendTextDM(
+      senderId,
+      "Hmm, no parece un email valido. Podes enviarmelo de nuevo?",
+    );
   }
 }
 
@@ -117,11 +157,11 @@ async function handleKeywordDM(
 ): Promise<void> {
   // Rate limit & cooldown checks
   if (isRateLimited(senderId)) {
-    logger.warn({ senderId }, 'User rate limited (max DMs/hour)');
+    logger.warn({ senderId }, "User rate limited (max DMs/hour)");
     return;
   }
   if (isOnCooldown(senderId, rule.id, rule.cooldownMinutes)) {
-    logger.info({ senderId, ruleId: rule.id }, 'Skipped — user on cooldown');
+    logger.info({ senderId, ruleId: rule.id }, "Skipped — user on cooldown");
     return;
   }
 
@@ -132,7 +172,7 @@ async function handleKeywordDM(
       const profile = await getUserProfile(senderId);
       username = profile.username;
     } catch {
-      username = 'amigo';
+      username = "amigo";
     }
   }
 
@@ -141,16 +181,19 @@ async function handleKeywordDM(
     await upsertLead({
       igUserId: senderId,
       igUsername: username,
-      source: 'dm',
+      source: "dm",
       keywordId: rule.id,
     });
   } catch (err) {
-    logger.error({ err, senderId }, 'Failed to upsert lead (continuing with DM)');
+    logger.error(
+      { err, senderId },
+      "Failed to upsert lead (continuing with DM)",
+    );
   }
 
   // Send keyword response
   const renderedText = renderTemplate(rule.response.text, { username });
-  if (rule.response.type === 'button' && rule.response.buttons?.length) {
+  if (rule.response.type === "button" && rule.response.buttons?.length) {
     await sendButtonDM(senderId, renderedText, rule.response.buttons);
   } else {
     await sendTextDM(senderId, renderedText);
@@ -160,14 +203,14 @@ async function handleKeywordDM(
   recordTrigger(senderId, rule.id);
   logDM({
     igUserId: senderId,
-    direction: 'outbound',
+    direction: "outbound",
     messageType: rule.response.type,
     keywordId: rule.id,
     content: renderedText,
-  }).catch((err) => logger.error({ err }, 'Failed to log DM'));
+  }).catch((err) => logger.error({ err }, "Failed to log DM"));
 
   // If askEmail, the response already has a postback button.
   // The postback handler will take over when the user clicks it.
 
-  logger.info({ senderId, ruleId: rule.id }, 'Keyword DM sent successfully');
+  logger.info({ senderId, ruleId: rule.id }, "Keyword DM sent successfully");
 }

@@ -1,5 +1,5 @@
-import { getDb } from './db.js';
-import { logger } from '../utils/logger.js';
+import { logger } from "../utils/logger.js";
+import { getDb } from "./db.js";
 
 export interface Lead {
   id: number;
@@ -37,11 +37,17 @@ export async function upsertLead(data: {
     RETURNING *
   `;
 
-  logger.debug({ igUserId: data.igUserId, status: lead.status }, 'Lead upserted');
+  logger.debug(
+    { igUserId: data.igUserId, status: lead.status },
+    "Lead upserted",
+  );
   return lead;
 }
 
-export async function setLeadEmail(igUserId: string, email: string): Promise<Lead> {
+export async function setLeadEmail(
+  igUserId: string,
+  email: string,
+): Promise<Lead> {
   const db = getDb();
 
   const [lead] = await db<Lead[]>`
@@ -51,18 +57,25 @@ export async function setLeadEmail(igUserId: string, email: string): Promise<Lea
     RETURNING *
   `;
 
-  logger.info({ igUserId, email }, 'Lead email collected');
+  logger.info({ igUserId, email }, "Lead email collected");
   return lead;
 }
 
-export async function setLeadStatus(igUserId: string, status: string): Promise<void> {
+export async function setLeadStatus(
+  igUserId: string,
+  status: string,
+): Promise<void> {
   const db = getDb();
   await db`UPDATE leads SET status = ${status}, updated_at = NOW() WHERE ig_user_id = ${igUserId}`;
 }
 
-export async function getLeadByIgUserId(igUserId: string): Promise<Lead | null> {
+export async function getLeadByIgUserId(
+  igUserId: string,
+): Promise<Lead | null> {
   const db = getDb();
-  const [lead] = await db<Lead[]>`SELECT * FROM leads WHERE ig_user_id = ${igUserId}`;
+  const [lead] = await db<
+    Lead[]
+  >`SELECT * FROM leads WHERE ig_user_id = ${igUserId}`;
   return lead ?? null;
 }
 

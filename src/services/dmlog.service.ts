@@ -1,8 +1,8 @@
-import { getDb } from './db.js';
+import { getDb } from "./db.js";
 
 export async function logDM(data: {
   igUserId: string;
-  direction: 'inbound' | 'outbound';
+  direction: "inbound" | "outbound";
   messageType?: string;
   keywordId?: string;
   content?: string;

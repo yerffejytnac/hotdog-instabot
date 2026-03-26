@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import 'dotenv/config';
+import { z } from "zod";
+import "dotenv/config";
 
 const envSchema = z.object({
   META_APP_SECRET: z.string().min(1),
@@ -7,13 +7,17 @@ const envSchema = z.object({
   INSTAGRAM_PAGE_ACCESS_TOKEN: z.string().min(1),
   INSTAGRAM_PAGE_ID: z.string().min(1),
   PORT: z.coerce.number().default(3000),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace"])
+    .default("info"),
   ADMIN_API_KEY: z.string().min(1),
   DATABASE_URL: z.string().min(1),
   RESEND_API_KEY: z.string().min(1).optional(),
-  EMAIL_FROM: z.string().default('Hotdog Photo <hello@hotdog.photo>'),
-  WELCOME_EMAIL_TEMPLATE: z.string().default('welcome-generic.html'),
+  EMAIL_FROM: z.string().default("Hotdog Photo <hello@hotdog.photo>"),
+  WELCOME_EMAIL_TEMPLATE: z.string().default("welcome-generic.html"),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -24,7 +28,10 @@ export function loadEnv(): Env {
   if (_env) return _env;
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
-    console.error('Invalid environment variables:', result.error.flatten().fieldErrors);
+    console.error(
+      "Invalid environment variables:",
+      result.error.flatten().fieldErrors,
+    );
     process.exit(1);
   }
   _env = result.data;
@@ -32,6 +39,6 @@ export function loadEnv(): Env {
 }
 
 export function getEnv(): Env {
-  if (!_env) throw new Error('Environment not loaded. Call loadEnv() first.');
+  if (!_env) throw new Error("Environment not loaded. Call loadEnv() first.");
   return _env;
 }

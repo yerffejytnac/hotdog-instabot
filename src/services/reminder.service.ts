@@ -1,7 +1,7 @@
-import { logger } from '../utils/logger.js';
-import { getLeadsPendingEmailReminder, setLeadStatus } from './lead.service.js';
-import { sendTextDM } from './instagram.service.js';
-import { logDM } from './dmlog.service.js';
+import { logger } from "../utils/logger.js";
+import { logDM } from "./dmlog.service.js";
+import { sendTextDM } from "./instagram.service.js";
+import { getLeadsPendingEmailReminder, setLeadStatus } from "./lead.service.js";
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -15,32 +15,35 @@ export function startEmailReminder(): void {
         try {
           await sendTextDM(
             lead.ig_user_id,
-            'Ups! Parece que te ocupaste y olvidaste ingresar tu correo electronico.',
+            "Ups! Parece que te ocupaste y olvidaste ingresar tu correo electronico.",
           );
           await sendTextDM(
             lead.ig_user_id,
-            'Puedo enviarte el link de registro? Ingresa tu correo electronico abajo!',
+            "Puedo enviarte el link de registro? Ingresa tu correo electronico abajo!",
           );
-          await setLeadStatus(lead.ig_user_id, 'email_reminded');
+          await setLeadStatus(lead.ig_user_id, "email_reminded");
 
           logDM({
             igUserId: lead.ig_user_id,
-            direction: 'outbound',
-            messageType: 'reminder',
-            content: 'Email reminder',
+            direction: "outbound",
+            messageType: "reminder",
+            content: "Email reminder",
           }).catch(() => {});
 
-          logger.info({ igUserId: lead.ig_user_id }, 'Email reminder sent');
+          logger.info({ igUserId: lead.ig_user_id }, "Email reminder sent");
         } catch (err) {
-          logger.error({ err, igUserId: lead.ig_user_id }, 'Failed to send email reminder');
+          logger.error(
+            { err, igUserId: lead.ig_user_id },
+            "Failed to send email reminder",
+          );
         }
       }
     } catch (err) {
-      logger.error({ err }, 'Error in email reminder check');
+      logger.error({ err }, "Error in email reminder check");
     }
   }, 60_000);
 
-  logger.info('Email reminder service started (checks every 60s)');
+  logger.info("Email reminder service started (checks every 60s)");
 }
 
 export function stopEmailReminder(): void {

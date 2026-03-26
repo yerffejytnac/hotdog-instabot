@@ -1,4 +1,4 @@
-import { logger } from './logger.js';
+import { logger } from "./logger.js";
 
 export interface RetryOptions {
   maxRetries: number;
@@ -31,10 +31,17 @@ export async function withRetry<T>(
       const body = await response.text();
 
       // Don't retry 4xx errors (except 429)
-      if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+      if (
+        response.status >= 400 &&
+        response.status < 500 &&
+        response.status !== 429
+      ) {
         // Check for 24h messaging window error
-        if (body.includes('Cannot message users who are not following')) {
-          logger.warn({ status: response.status, body }, '24h messaging window — user not following');
+        if (body.includes("Cannot message users who are not following")) {
+          logger.warn(
+            { status: response.status, body },
+            "24h messaging window — user not following",
+          );
         }
         throw new Error(`Instagram API error ${response.status}: ${body}`);
       }
@@ -43,7 +50,7 @@ export async function withRetry<T>(
       lastError = new Error(`Instagram API error ${response.status}: ${body}`);
       logger.warn(
         { status: response.status, attempt, body },
-        'Retryable error from Instagram API',
+        "Retryable error from Instagram API",
       );
     } catch (error) {
       if (attempt === options.maxRetries) {
@@ -51,17 +58,17 @@ export async function withRetry<T>(
       }
       lastError = error instanceof Error ? error : new Error(String(error));
       // Don't retry non-retryable errors
-      if (lastError.message.includes('Instagram API error 4')) {
+      if (lastError.message.includes("Instagram API error 4")) {
         throw lastError;
       }
     }
 
     if (attempt < options.maxRetries) {
-      const delay = options.baseDelayMs * Math.pow(2, attempt);
-      logger.info({ delay, attempt }, 'Retrying after delay');
+      const delay = options.baseDelayMs * 2 ** attempt;
+      logger.info({ delay, attempt }, "Retrying after delay");
       await sleep(delay);
     }
   }
 
-  throw lastError ?? new Error('withRetry exhausted all retries');
+  throw lastError ?? new Error("withRetry exhausted all retries");
 }
