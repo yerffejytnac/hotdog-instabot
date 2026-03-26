@@ -139,7 +139,7 @@ curl https://instabot.hotdog.photo/health
 ### Test keyword matching — send a DM
 
 1. From a different Instagram account (not the bot's account), send a DM to the bot's Instagram account.
-2. Type a trigger word — e.g., `🌭` or `WOOF`.
+2. Type a trigger — e.g., send the 🌭 emoji or the word `WOOF`.
 3. The bot should reply within a few seconds.
 
 ### Test via the webhook directly

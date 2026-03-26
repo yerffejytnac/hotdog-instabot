@@ -1,6 +1,6 @@
 # hotdog-bot 🌭📸
 
-**Open-source ManyChat alternative. Self-hosted Instagram DM automation for dog portrait photography.**
+**Open-source ManyChat alternative. Self-hosted Instagram DM automation.**
 
 Replace your $50/month ManyChat subscription with a self-hosted server that does keyword-triggered DMs, email collection, and resource delivery — all running on Dokploy (or any Docker host).
 
@@ -22,16 +22,13 @@ Replace your $50/month ManyChat subscription with a self-hosted server that does
 ## How It Works
 
 ```/dev/null/flow.txt#L1-7
-User comments "BOOKING" on your post
+User sends "🌭" or "WOOF" via DM (or comments on a post)
         │
         ▼
-hotdog-bot matches keyword → sends DM with CTA button
-        │
+hotdog-bot matches keyword → sends DM response
+        │  (optionally)
         ▼
-User clicks button → "What's your email?"
-        │
-        ▼
-User sends email → Booking info delivered via DM + email
+Bot asks for email → user replies → resource delivered via DM + email
 ```
 
 ## Quick Start
@@ -60,6 +57,8 @@ Edit `keywords.json` to define your automation rules. Two rules are included out
 | `hotdog` | 🌭 emoji | Plain text reply |
 | `woof` | WOOF | Plain text reply |
 
+See [docs/keywords.md](docs/keywords.md) for the full schema, match types, and examples including email collection flows.
+
 ### 4. Deploy to Dokploy
 
 This project ships with a `docker-compose.yml` ready for [Dokploy's Docker Compose deployment mode](https://docs.dokploy.com/docs/core/docker-compose).
@@ -67,7 +66,7 @@ This project ships with a `docker-compose.yml` ready for [Dokploy's Docker Compo
 #### Option A: Deploy via Dokploy UI
 
 1. In the Dokploy dashboard, create a new **Compose** project
-2. Point it to your Git repository (or paste the `docker-compose.yml` contents)
+2. Point it to your Git repository
 3. Add your environment variables in the Dokploy **Environment** tab (see table below)
 4. Set `POSTGRES_PASSWORD` to a strong, unique value
 5. Deploy — Dokploy builds the image, starts Postgres, and wires everything up
@@ -88,8 +87,8 @@ docker compose logs -f app
 ### 5. Configure Meta Webhook
 
 1. Go to [Meta Developer Console](https://developers.facebook.com)
-2. Set webhook URL to `https://instabot.hotdog.photo/webhook`
-3. Subscribe to: `comments`, `messages`, `messaging_postbacks`
+2. Set webhook URL to `https://your-domain.com/webhook`
+3. Subscribe to: `messages`, `messaging_postbacks`
 
 ## Configuration
 
@@ -103,18 +102,18 @@ docker compose logs -f app
 | `INSTAGRAM_PAGE_ID` | Yes | Your Instagram page/account ID |
 | `DATABASE_URL` | Yes | PostgreSQL connection string (set automatically by compose) |
 | `POSTGRES_PASSWORD` | Yes | Password for the Postgres container |
-| `ADMIN_API_KEY` | Yes | API key for admin endpoints |
+| `ADMIN_API_KEY` | Yes | Required by env schema, reserved for future admin endpoints |
 | `PORT` | No | Server port (default: 3000) |
 | `RESEND_API_KEY` | No | Resend API key (enables email features) |
 | `EMAIL_FROM` | No | Sender address (default: `Hotdog Photo <hello@hotdog.photo>`) |
-| `WELCOME_EMAIL_TEMPLATE` | No | Welcome email template filename (default: `welcome-generic.html`) |
+| `WELCOME_EMAIL_TEMPLATE` | No | Email template filename in `email-templates/` (default: `welcome.html`) |
 
 ### Keyword Match Types
 
 | Type | Behavior | Example |
 |------|----------|---------|
-| `exact` | Full text must match | "BOOKING" matches "BOOKING" only |
-| `contains` | Keyword anywhere in text | "BOOKING" matches "I want a BOOKING please" |
+| `exact` | Full text must match | "WOOF" matches "WOOF" only |
+| `contains` | Keyword anywhere in text | "WOOF" matches "hey WOOF!" |
 | `word_boundary` | Whole word match | "BOOK" matches "I want to BOOK" but not "FACEBOOK" |
 
 All matching is case-insensitive.
@@ -123,18 +122,18 @@ All matching is case-insensitive.
 
 A welcome email template is included in `email-templates/`:
 
-- `welcome-generic.html` — Hotdog-branded welcome email (default)
+- `welcome.html` — Hotdog-branded welcome email (default)
 
 The template uses `{{1.record.full_name}}` as the name placeholder. To create your own, add an HTML file to `email-templates/` and set `WELCOME_EMAIL_TEMPLATE` in your `.env`.
 
 ## Architecture
 
-```/dev/null/tree.txt#L1-18
+```/dev/null/tree.txt#L1-20
 src/
 ├── index.ts                 # Entry point (Bun.serve)
 ├── config/env.ts            # Zod-validated environment
 ├── pages/
-│   └── privacy.ts           # GET /privacy — renders privacy-policy.md
+│   └── privacy.ts           # GET /privacy — renders docs/privacy-policy.md
 ├── webhooks/
 │   ├── router.ts            # GET/POST /webhook handlers
 │   ├── verify.ts            # HMAC signature verification
@@ -167,6 +166,15 @@ src/
 
 Data is persisted in a named Docker volume (`pgdata`). The app starts after the `db` service is up.
 
+## Routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Health check — returns `{"status":"ok"}` |
+| `GET` | `/privacy` | Privacy policy page (rendered from `docs/privacy-policy.md`) |
+| `GET` | `/webhook` | Meta webhook verification (challenge response) |
+| `POST` | `/webhook` | Meta webhook events (DMs, comments, postbacks, mentions) |
+
 ## Running Locally
 
 ```/dev/null/bash.sh#L1-11
@@ -190,18 +198,17 @@ ngrok http 3000
 # Then set the ngrok URL as your webhook URL in Meta Developer Console
 ```
 
----
+## Documentation
 
-## License
-
-MIT — use it, modify it, sell it. See [LICENSE](LICENSE) for details.
+- [Configuration](docs/configuration.md) — Environment variables, database, email, logging
+- [Keywords](docs/keywords.md) — Rule schema, match types, examples
+- [Setup & Testing](docs/setup-and-testing.md) — Deploy, Meta webhook setup, testing, troubleshooting
+- [Privacy Policy](docs/privacy-policy.md) — Served at `/privacy`
 
 ---
 
 ## Disclaimer
 
-To the best of our understanding, using this tool with the official Instagram Messaging API for your own account (personal or business) is permitted by Meta's platform policies and does not require App Review. However, using it to manage third-party accounts or offer it as a service to clients may require additional Meta approvals.
+This software uses the official Instagram Messaging API. Using it for your own account (personal or business) is permitted by Meta's platform policies and does not require App Review. Using it to manage third-party accounts may require additional Meta approvals.
 
-This is not legal advice. If you intend to use this tool commercially or on behalf of clients, consult a qualified legal professional to ensure compliance with Meta's Platform Terms, Instagram's policies, and applicable laws.
-
-The authors and contributors of this project accept no liability for any account suspension, ban, legal claim, or other consequence arising from the use of this software. **Use at your own risk.**
+This is not legal advice. The authors accept no liability for any account suspension, ban, legal claim, or other consequence arising from the use of this software. **Use at your own risk.**

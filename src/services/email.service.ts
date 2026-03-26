@@ -19,7 +19,7 @@ function getResend(): Resend {
 
 function getTemplate(): string {
   if (!templateHtml) {
-    const filename = getEnv().WELCOME_EMAIL_TEMPLATE || "bienvenido.html";
+    const filename = getEnv().WELCOME_EMAIL_TEMPLATE || "welcome.html";
     const templatePath = resolve(process.cwd(), "email-templates", filename);
     templateHtml = readFileSync(templatePath, "utf-8");
   }
@@ -36,7 +36,7 @@ export async function sendWelcomeEmail(
   const { error } = await client.emails.send({
     from: getEnv().EMAIL_FROM,
     to,
-    subject: "¡Bienvenido a Golem Lab!",
+    subject: "Welcome to Hotdog Photo!",
     html,
   });
 

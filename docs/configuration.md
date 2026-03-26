@@ -33,7 +33,7 @@ cp .env.example .env
 | `LOG_LEVEL` | `info` | Pino log level. One of: `fatal`, `error`, `warn`, `info`, `debug`, `trace`. |
 | `RESEND_API_KEY` | _(disabled)_ | API key from [Resend](https://resend.com). When omitted, all email features (welcome email, resource delivery, reminders) are disabled. |
 | `EMAIL_FROM` | `Hotdog Photo <hello@hotdog.photo>` | The "From" address for outgoing emails. Must be a verified sender in your Resend account. |
-| `WELCOME_EMAIL_TEMPLATE` | `welcome-generic.html` | Filename of the HTML template in `email-templates/` used for the welcome email. |
+| `WELCOME_EMAIL_TEMPLATE` | `welcome.html` | Filename of the HTML template in `email-templates/` used for the welcome email. |
 
 ---
 
@@ -68,7 +68,7 @@ Email features require a [Resend](https://resend.com) account and API key. When 
 
 ### Email Templates
 
-Templates live in `email-templates/`. The default is `welcome-generic.html`, which is Hotdog-branded and uses:
+Templates live in `email-templates/`. The default is `welcome.html`, which is Hotdog-branded and uses:
 
 - `{{1.record.full_name}}` — Replaced with the user's name
 
